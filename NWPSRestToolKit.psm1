@@ -1,4 +1,4 @@
-﻿function Connect-NW
+﻿function Connect-NWServer
 {
     [CmdletBinding()]
     [OutputType([int])]
@@ -8,11 +8,15 @@
         [Parameter(Mandatory=$false,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
-        $global:NWIP = "192.168.2.11",
-        $global:NWPort = 9090,
+        $NWIP = "192.168.2.11",
+        $NWPort = 9090,
         [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true,
-                   Position=0)][pscredential]$Credentials,
+                   Position=0)]$nwuser = "Administrator",
+         [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$true,
+                   Position=0)]$nwpassword = "Password123!",
+
         [switch]$trustCert
     )
 
@@ -25,13 +29,7 @@
     }
     Process
     {
-    if (!$Credentials)
-        {
-        $User = Read-Host -Prompt "Please Enter NW username"
-        $SecurePassword = Read-Host -Prompt "Enter NW Password for user $user"# -AsSecureString
-        }
-    $pass = $SecurePassword
-    $pair = "$($user):$($SecurePassword)"
+    $pair = "$($nwuser):$($nwpassword)"
     $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
     $basicAuthValue = "Basic $encodedCreds"
     $Global:Headers = @{
@@ -39,46 +37,26 @@
         Authorization = $basicAuthValue
         }
     $Global:NWbaseurl = "https://$($NWIP):$($NWPort)/nwrestapi/v1"
-
     }
     End
     {
     }
 }
-
-function Get-NWbackups
+function Unblock-NWCerts
 {
-    [CmdletBinding(DefaultParameterSetName='1')]
-    Param
-    (
-    )
-    Begin
-    {
-    $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(7)
-    }
-    Process
-    {
-    $Method = 'global/backups'
-    $MethodType = 'GET'
-    $jsonbody = ConvertTo-Json $body
-    try
-        {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType -Verbose).backups | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-        }
-    catch
-        {
-        $_.Exception.Message
-        break
-        }
-    }
-    End
-    {
-
-    }
+    Add-Type -TypeDefinition @"
+	    using System.Net;
+	    using System.Security.Cryptography.X509Certificates;
+	    public class TrustAllCertsPolicy : ICertificatePolicy {
+	        public bool CheckValidationResult(
+	            ServicePoint srvPoint, X509Certificate certificate,
+	            WebRequest request, int certificateProblem) {
+	            return true;
+	        }
+	    }
+"@
+[System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName TrustAllCertsPolicy
 }
-
-
 function Get-NWyesno
 {
     [CmdletBinding(DefaultParameterSetName='Parameter Set 1', 
@@ -98,19 +76,4 @@ $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No","$Not
 $options = [System.Management.Automation.Host.ChoiceDescription[]]($no, $yes)
 $result = $host.ui.PromptForChoice($title, $message, $options, 0)
 return ($result)
-}
-function Unblock-NWCerts
-{
-    Add-Type -TypeDefinition @"
-	    using System.Net;
-	    using System.Security.Cryptography.X509Certificates;
-	    public class TrustAllCertsPolicy : ICertificatePolicy {
-	        public bool CheckValidationResult(
-	            ServicePoint srvPoint, X509Certificate certificate,
-	            WebRequest request, int certificateProblem) {
-	            return true;
-	        }
-	    }
-"@
-[System.Net.ServicePointManager]::CertificatePolicy = New-Object -TypeName TrustAllCertsPolicy
 }
