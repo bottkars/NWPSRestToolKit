@@ -12,10 +12,7 @@
         $NWPort = 9090,
         [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true,
-                   Position=0)]$nwuser = "Administrator",
-         [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true,
-                   Position=0)]$nwpassword = "Password123!",
+                   Position=0)][pscredential]$Credentials,
 
         [switch]$trustCert
     )
@@ -29,6 +26,7 @@
     }
     Process
     {
+<#
     $pair = "$($nwuser):$($nwpassword)"
     $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
     $basicAuthValue = "Basic $encodedCreds"
@@ -36,6 +34,14 @@
         'Content-Type' = 'application/json'
         Authorization = $basicAuthValue
         }
+#>
+    if (!$Credentials)
+        {
+        $User = Read-Host -Prompt "Please Enter Networkerusername"
+        $SecurePassword = Read-Host -Prompt "Enter Networker Password for user $user" -AsSecureString
+        $Global:NWCredentials = New-Object System.Management.Automation.PSCredential (“$user”,$Securepassword)
+        }
+
     $Global:NWbaseurl = "https://$($NWIP):$($NWPort)/nwrestapi/v1"
     }
     End
