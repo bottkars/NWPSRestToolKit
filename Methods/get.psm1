@@ -87,18 +87,23 @@ function Get-NWbackups
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+    [Parameter(Mandatory=$false
+                   #ValueFromPipeline=$true
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+    [Parameter(Mandatory=$false
+                   #ValueFromPipeline=$true
                    )]
     $tenantid,
-    [Parameter(Mandatory=$false,Position = 0,
-                   ValueFromPipeline=$true
+    [Parameter(Mandatory=$false,Position = 0,ParameterSetname = 1
+                   #ValueFromPipeline=$true
                    )][alias('backupid')]
-    $Id
+    $Id,
+    [Parameter(Mandatory=$true,ParameterSetname = "ClientID",
+                   ValueFromPipelineByPropertyName=$true
+                   )][alias('ClientID')]
+    $ClientRessourceID
+
 
     )
     Begin
@@ -116,15 +121,25 @@ function Get-NWbackups
     $MethodType = 'GET'
     try
         {
-        if ($Id)
+        switch ($PsCmdlet.ParameterSetName)
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            "ClientID"
+                {
+                $Method = "$scope/clients/$ClientRessourceID/$Myself"
+                (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links,id,instances -ExpandProperty instances #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                }
+            default
+                {
+                if ($Id)
+                    {
+                    (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                    }
+                else
+                    {
+                    (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                    }
+                }
             }
-        else
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-
         }
     catch
         {
@@ -174,11 +189,11 @@ function Get-NWclients
         {
         if ($id)
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ) | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessource";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             }
         else
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             }
 
         }
