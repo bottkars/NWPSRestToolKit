@@ -40,6 +40,12 @@ import-module \path-to-moduledir\NWPSRestToolKit.psd1
 ```
 
 test the commnds from the module :-)  
+##Test
+try to connect to your Networker Server
+![image](https://cloud.githubusercontent.com/assets/8255007/16623331/c5bf023c-439d-11e6-9186-e271953b3285.png)
+
+the cmdlet shall Respond with the servername and operating sytem of the server
+
 ## Examples  
 View Vbackups of a Client Using ressourceID od the Client
 
