@@ -36,4 +36,5 @@ import the modules
 import-module \path-to-moduledir\NWPSRestToolKit.psd1
 ```
 
-test the commnds from the module :-)
+test the commnds from the module :-)  
+## Examples  
