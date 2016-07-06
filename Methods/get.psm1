@@ -946,3 +946,55 @@ function Get-NWvolumes
 
     }
 }
+#GET /protectionpolicies/{policyId}/workflows#
+function Get-NWWorkflows
+{
+    [CmdletBinding(DefaultParameterSetName='1')]
+    Param
+    (
+    [Parameter(Mandatory=$false
+                   #ValueFromPipeline=$true
+                   )]
+    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [Parameter(Mandatory=$false
+                   #ValueFromPipeline=$true
+                   )]
+    $tenantid,
+    [Parameter(Mandatory=$true,ParameterSetname = 1,
+                   ValueFromPipelineByPropertyName=$true
+                   )][alias('ClientID')]
+    $PolicyName
+
+
+    )
+    Begin
+    {
+    $ContentType = "application/json"
+    $Myself = ($MyInvocation.MyCommand.Name.Substring(6)).ToLower()
+    if ($scope -eq "tenant")
+        {
+        $scope = "$scope/$tenantid"
+        }
+    }
+    Process
+    {
+    $Method = "$scope/protectionpolicies/$PolicyName/$Myself"
+    $MethodType = 'GET'
+    try
+        {
+        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="ProtectionPolicy";E={$PolicyName}},@{N="$($Myself -replace ".$")Name";E={$_.name}} -ExcludeProperty links,name #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        }
+    catch
+        {
+        Get-NWWebException -ExceptionMessage $_
+
+        return
+        }
+    }
+    End
+    {
+
+    }
+}
+
+

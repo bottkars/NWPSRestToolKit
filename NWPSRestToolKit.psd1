@@ -65,6 +65,7 @@ PowerShellVersion = '3.0'
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @('.\NWPSrestToolKit.psm1',
 '.\methods\get.psm1',
+'.\methods\post.psm1',
 '.\errors\errors.psm1')
 
 # Functions to export from this module
