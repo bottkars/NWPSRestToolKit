@@ -24,7 +24,7 @@ $OutFile = Join-Path $DownloadLocation $File
 Invoke-WebRequest -Uri $Uri -OutFile $OutFile
 Unblock-File -Path $Outfile
 Set-Location $DownloadLocation
-.\install-SIORestToolkit.ps1 -Installpath [replacewithyourdestination]
+.\install-NWPSRestToolKit.ps1 -Installpath [replacewithyourdestination]
 ```
 ## alternative installation  
 if not using the Downloader, i Recommend cloning into the modules using and do regular pulls for update rather tan downloading the zip. this also eliminates the need for unblocking the zip archive !!! )
