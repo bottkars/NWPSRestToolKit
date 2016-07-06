@@ -94,7 +94,12 @@ function Get-NWbackups
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
                    )]
-    $tenantid
+    $tenantid,
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('backupid')]
+    $Id
+
     )
     Begin
     {
@@ -107,11 +112,19 @@ function Get-NWbackups
     }
     Process
     {
-    $Method = "$scope/$Myself"
+    $Method = "$scope/$Myself/$id"
     $MethodType = 'GET'
     try
         {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        if ($Id)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
         }
     catch
         {
@@ -140,8 +153,8 @@ function Get-NWclients
     $tenantid,
     [Parameter(Mandatory=$false,Position = 0,
                    ValueFromPipeline=$true
-                   )][alias('id')]
-    $ClientId
+                   )][alias('Clientid')]
+    $Id
 
     )
     Begin
@@ -192,7 +205,12 @@ function Get-NWdevices
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
                    )]
-    $tenantid
+    $tenantid,
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('Deviceid')]
+    $Id
+
     )
     Begin
     {
@@ -205,11 +223,19 @@ function Get-NWdevices
     }
     Process
     {
-    $Method = "$scope/$Myself"
+    $Method = "$scope/$Myself/$id"
     $MethodType = 'GET'
     try
         {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        if ($id)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
         }
     catch
         {
@@ -360,7 +386,12 @@ function Get-NWjobs
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
                    )]
-    $tenantid
+    $tenantid,
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('Jobid')]
+    $Id
+
     )
     Begin
     {
@@ -373,11 +404,19 @@ function Get-NWjobs
     }
     Process
     {
-    $Method = "$scope/$Myself"
+    $Method = "$scope/$Myself/$id"
     $MethodType = 'GET'
     try
         {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        if ($id)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Headers $global:Headers -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
         }
     catch
         {
@@ -385,6 +424,7 @@ function Get-NWjobs
         return
         }
     }
+
     End
     {
 
