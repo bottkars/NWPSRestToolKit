@@ -26,18 +26,9 @@
     }
     Process
     {
-<#
-    $pair = "$($nwuser):$($nwpassword)"
-    $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
-    $basicAuthValue = "Basic $encodedCreds"
-    $Global:Headers = @{
-        'Content-Type' = 'application/json'
-        Authorization = $basicAuthValue
-        }
-#>
     if (!$Credentials)
         {
-        $User = Read-Host -Prompt "Please Enter Networkerusername"
+        $User = Read-Host -Prompt "Please Enter Networker Username"
         $SecurePassword = Read-Host -Prompt "Enter Networker Password for user $user" -AsSecureString
         $Global:NWCredentials = New-Object System.Management.Automation.PSCredential (“$user”,$Securepassword)
         }
