@@ -28,7 +28,7 @@
     {
     if (!$Credentials)
         {
-        $User = Read-Host -Prompt "Please Enter Networker Username"
+        $User = Read-Host -Prompt "Please enter the username for Networker Administrator"
         $SecurePassword = Read-Host -Prompt "Enter Networker Password for user $user" -AsSecureString
         $Global:NWCredentials = New-Object System.Management.Automation.PSCredential (“$user”,$Securepassword)
         }
