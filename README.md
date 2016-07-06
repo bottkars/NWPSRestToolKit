@@ -1,5 +1,8 @@
 # NWPSRestToolKit
 Powershell Toolkit for Networker Rest API 
+###about
+the Goal of the Networker Powershell Toolkit is to make a Networker Admin´s live on windows easier  
+teh Toolkit should support Pielining of commands, and combine the value of Powershell with the strength of the RestAPI
 
 
 ###requirements
@@ -38,3 +41,12 @@ import-module \path-to-moduledir\NWPSRestToolKit.psd1
 
 test the commnds from the module :-)  
 ## Examples  
+View Vbackups of a Client Using ressourceID od the Client
+
+![image](https://cloud.githubusercontent.com/assets/8255007/16623185/37dec11e-439d-11e6-8484-28f60357836a.png)
+
+
+View Backups of a Client using Pipeline Support
+
+![image](https://cloud.githubusercontent.com/assets/8255007/16623088/d43bd0ca-439c-11e6-85cc-5cac73e6ac8c.png)
+
