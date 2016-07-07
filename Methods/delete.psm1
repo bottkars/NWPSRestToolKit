@@ -3,19 +3,18 @@
     [CmdletBinding(DefaultParameterSetName = '1',
                         SupportsShouldProcess=$true, 
                         ConfirmImpact='Medium')]
-
     Param
     (
-    [Parameter(Mandatory=$true,Position = 0,
+    [Parameter(Mandatory=$true,
                    ValueFromPipelineByPropertyName=$true
-                   )][alias('Clientid')]
+                   )]#[alias('ID')]
     $ClientRessourceID,
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
@@ -46,15 +45,9 @@
             {
             try
                 {
-                if ($id)
-                    {
-                    Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType -TimeoutSec 10 # ) #| Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessource";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-                    }
-                else
-                    {
-                    Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType -TimeoutSec 10 #) #.$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-                    }
-
+                $ServicePoint = [System.Net.ServicePointManager]::FindServicePoint("$NWbaseurl/$Method") 
+                Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType -TimeoutSec 10 #) #.$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                $ServicePoint.CloseConnectionGroup("") | Out-Null
                 }
             catch
                 {
