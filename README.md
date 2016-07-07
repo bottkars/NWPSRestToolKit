@@ -53,6 +53,12 @@ View Vbackups of a Client Using ressourceID od the Client
 
 
 View Backups of a Client using Pipeline Support
-
 ![image](https://cloud.githubusercontent.com/assets/8255007/16623088/d43bd0ca-439c-11e6-85cc-5cac73e6ac8c.png)
+
+Getting Workflows from a Policy
+![image](https://cloud.githubusercontent.com/assets/8255007/16629401/cf8e4bde-43b5-11e6-86ba-585abd6ed13c.png)
+
+
+Starting a Workflow from Pipeline
+![image](https://cloud.githubusercontent.com/assets/8255007/16629296/95f61686-43b5-11e6-9a57-feeb75483c6b.png)
 
