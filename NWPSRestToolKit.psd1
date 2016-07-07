@@ -66,6 +66,7 @@ PowerShellVersion = '3.0'
 NestedModules = @('.\NWPSrestToolKit.psm1',
 '.\methods\get.psm1',
 '.\methods\post.psm1',
+'.\methods\put.psm1',
 '.\methods\delete.psm1',
 '.\errors\errors.psm1')
 
