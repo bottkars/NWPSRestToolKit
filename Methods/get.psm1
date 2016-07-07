@@ -166,10 +166,15 @@ function Get-NWclients
                    ValueFromPipeline=$true
                    )]
     $tenantid,
-    [Parameter(Mandatory=$false,Position = 0,
+    [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
-                   )][alias('Clientid')]
-    $Id
+                   )][alias('Clientid','ClientRessourceID')]
+    $Id,
+        [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('ClientName')]
+    $hostname
+
 
     )
     Begin
@@ -189,11 +194,11 @@ function Get-NWclients
         {
         if ($id)
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ) | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessource";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            $MyClients = Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType  | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             }
         else
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            $MyClients = (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             }
 
         }
@@ -201,6 +206,14 @@ function Get-NWclients
         {
         Get-NWWebException -ExceptionMessage $_
         return
+        }
+    if ($hostname)
+        {
+        Write-Output $MyClients | where hostname -Match $hostname
+        }
+    else
+        {
+        Write-Output $MyClients
         }
     }
     End

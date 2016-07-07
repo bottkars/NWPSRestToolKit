@@ -32,7 +32,7 @@ Function Get-NWWebException
                     "*400*"
                         {
                         Write-Host -ForegroundColor Magenta $ExceptionMessage
-                        Write-Host -ForegroundColor White "400 Bad Request Badly formed URI, parameters, headers, or body content. Essentially a request syntax error or object not found"
+                        Write-Host -ForegroundColor White "400 Bad Request Badly formed URI, parameters, headers, or body content. Essentially a request syntax error or a networker ressource (host. policy etc ) not found"
                         }
                     "*401*"
                         {
