@@ -185,7 +185,6 @@ function Get-NWclients
     {
     $Method = "$scope/$Myself/$id"
     $MethodType = 'GET'
-    Write-Verbose $jsonbody
     try
         {
         if ($id)
