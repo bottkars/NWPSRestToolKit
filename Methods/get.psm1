@@ -102,7 +102,7 @@ function Get-NWbackups
     [Parameter(Mandatory=$true,ParameterSetname = "ClientID",
                    ValueFromPipelineByPropertyName=$true
                    )][alias('ClientID')]
-    $ClientRessourceID
+    $ClientResourceID
 
 
     )
@@ -125,7 +125,7 @@ function Get-NWbackups
             {
             "ClientID"
                 {
-                $Method = "$scope/clients/$ClientRessourceID/$Myself"
+                $Method = "$scope/clients/$ClientResourceID/$Myself"
                 (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links,id,instances -ExpandProperty instances #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
                 }
             default
@@ -168,7 +168,7 @@ function Get-NWclients
     $tenantid,
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
-                   )][alias('Clientid','ClientRessourceID')]
+                   )][alias('Clientid','ClientResourceID')]
     $Id,
         [Parameter(Mandatory=$false,Position = 0,
                    ValueFromPipeline=$true
@@ -195,13 +195,13 @@ function Get-NWclients
         if ($id)
             {
             #$ServicePoint = [System.Net.ServicePointManager]::FindServicePoint("$NWbaseurl/$Method") 
-            $MyClients = Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType  | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            $MyClients = Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType  | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientResourceID";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             #$ServicePoint.CloseConnectionGroup("") | Out-Null
             }
         else
             {
             #$ServicePoint = [System.Net.ServicePointManager]::FindServicePoint("$NWbaseurl/$Method") 
-            $MyClients = (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientRessourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            $MyClients = (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientResourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             #$ServicePoint.CloseConnectionGroup("") | Out-Null
             }
 
@@ -698,7 +698,7 @@ function Get-NWprotectiongroups
     $MethodType = 'GET'
     try
         {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ProtectionGroupResourceID";E={$_.id}} -ExcludeProperty ID #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
         }
     catch
         {
