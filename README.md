@@ -12,6 +12,9 @@ open a powershell as admin and run
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted
 ```
+### Notice
+! all commands ending with an "s"  represent a plural and derived from the api. however, in my process of object re-writes i will also switch to singular commands without trailing "s"
+if there are examples with the plural, they might change to singular ( eg. clients to client ! )
 
 ## installation  
 The Modules are loaded via Import-Module NWPSRestToolKit
