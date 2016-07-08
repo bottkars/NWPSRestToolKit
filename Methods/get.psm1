@@ -1,21 +1,22 @@
-﻿function Get-NWalerts
+﻿function Get-NWAlert
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
+
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -40,24 +41,25 @@
 
     }
 }
-function Get-NWauditlogconfig
+function Get-NWAuditlogconfig
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
+
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -82,34 +84,33 @@ function Get-NWauditlogconfig
 
     }
 }
-function Get-NWbackups
+function Get-NWBackup
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
-                   )]
-    $tenantid,
     [Parameter(Mandatory=$false,Position = 0,ParameterSetname = 1
                    #ValueFromPipeline=$true
-                   )][alias('backupid')]
-    $Id,
+                   )][alias('bid')]
+    $BackupID,
     [Parameter(Mandatory=$true,ParameterSetname = "ClientID",
                    ValueFromPipelineByPropertyName=$true
                    )][alias('ClientID')]
-    $ClientResourceID
-
-
+    $ClientResourceID,
+    [switch]$Instances,
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -117,7 +118,7 @@ function Get-NWbackups
     }
     Process
     {
-    $Method = "$scope/$Myself/$id"
+    $Method = "$scope/$Myself/$BackupID"
     $MethodType = 'GET'
     try
         {
@@ -126,17 +127,31 @@ function Get-NWbackups
             "ClientID"
                 {
                 $Method = "$scope/clients/$ClientResourceID/$Myself"
-                (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links,id,instances -ExpandProperty instances #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself |
+                Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))Name";E={$_.name}},@{N="$($MyInvocation.MyCommand.Name.Substring(6))ID";E={$_.id}} -ExcludeProperty links,ID,name 
                 }
             default
                 {
-                if ($Id)
+                if ($BackupID)
                     {
-                    (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                    If ($Instances.IsPresent)
+                        {
+                        $Method = "$Method/instances"
+                        Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType | 
+                        Select-Object * -ExcludeProperty backupInstances,links -ExpandProperty backupInstances |
+                        Select-Object *,@{N="InstanceID";E={$_.id}} -ExcludeProperty id,links
+                         # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                        }
+                    else
+                        {
+                        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ) | # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                        Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))Name";E={$_.name}},@{N="$($MyInvocation.MyCommand.Name.Substring(6))ID";E={$_.id}} -ExcludeProperty links,ID,name 
+                        }
                     }
                 else
                     {
-                    (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+                    (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself |
+                    Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))Name";E={$_.name}},@{N="$($MyInvocation.MyCommand.Name.Substring(6))ID";E={$_.id}} -ExcludeProperty links,ID,name 
                     }
                 }
             }
@@ -153,34 +168,33 @@ function Get-NWbackups
 
     }
 }
-function Get-NWclients
+function Get-NWClient
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    $tenantid,
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
                    )][alias('Clientid','ID')]
     $ClientRessourceId,
-        [Parameter(Mandatory=$false,Position = 0,
-                   ValueFromPipeline=$true
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipelineByPropertyName=$true
                    )][alias('ClientName')]
-    $hostname
-
-
+    $hostname,
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -194,17 +208,16 @@ function Get-NWclients
         {
         if ($ClientRessourceId)
             {
-            #$ServicePoint = [System.Net.ServicePointManager]::FindServicePoint("$NWbaseurl/$Method") 
-            $MyClients = Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType  | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientResourceID";E={$_.id}} -ExcludeProperty ID # .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            #$ServicePoint.CloseConnectionGroup("") | Out-Null
+            $MyClients = Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType | 
+            Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))ResourceID";E={$_.id}} -ExcludeProperty ID 
             }
         else
             {
-            #$ServicePoint = [System.Net.ServicePointManager]::FindServicePoint("$NWbaseurl/$Method") 
-            $MyClients = (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object *,@{N="clientGUID";E={$_.clientid}} -ExcludeProperty ClientID | Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID | Select-Object *,@{N="ClientResourceID";E={$_.id}} -ExcludeProperty ID # @{N="$($Myself)Name";E={$_.ID}} #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            #$ServicePoint.CloseConnectionGroup("") | Out-Null
+            $MyClients = (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself |
+            Select-Object * -ExcludeProperty links,ID,resourceID -ExpandProperty resourceID |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))ResourceID";E={$_.id}} -ExcludeProperty ID 
             }
-
         }
     catch
         {
@@ -225,29 +238,29 @@ function Get-NWclients
 
     }
 }
-function Get-NWdevices
+function Get-NWDevice
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipelineByPropertyName=$true
+                   )][alias('Devname')]
+    $DeviceName,
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    $tenantid,
-    [Parameter(Mandatory=$false,Position = 0,
-                   ValueFromPipeline=$true
-                   )][alias('Deviceid')]
-    $Id
+    $tenantid
 
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -255,17 +268,21 @@ function Get-NWdevices
     }
     Process
     {
-    $Method = "$scope/$Myself/$id"
+    $Method = "$scope/$Myself/$DeviceName"
     $MethodType = 'GET'
     try
         {
-        if ($id)
+        if ($DeviceName)
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))Name";E={$_.name}} -ExcludeProperty links,ID,resourceID,name -ExpandProperty resourceID |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))ResourceID";E={$_.id}} -ExcludeProperty ID 
             }
         else
             {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))Name";E={$_.name}} -ExcludeProperty links,ID,resourceID,name -ExpandProperty resourceID |
+            Select-Object *,@{N="$($MyInvocation.MyCommand.Name.Substring(6))RessourceID";E={$_.id}} -ExcludeProperty ID 
             }
 
         }
@@ -280,79 +297,79 @@ function Get-NWdevices
 
     }
 }
-function Get-NWdirectives
+function Get-NWDirective
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    $tenantid,
     [Parameter(Mandatory=$false,Position = 0,
                    ValueFromPipeline=$true
-                   )][alias('Directiveid')]
-    $Id
-
-    )
-    Begin
-    {
-    $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
-    if ($scope -eq "tenant")
-        {
-        $scope = "$scope/$tenantid"
-        }
-    }
-    Process
-    {
-    $Method = "$scope/$Myself/$id"
-    $MethodType = 'GET'
-    try
-        {
-        if ($id)
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-        else
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-
-        }
-    catch
-        {
-        Get-NWWebException -ExceptionMessage $_
-        return
-        }
-    }
-    End
-    {
-
-    }
-}
-function Get-NWjobgroups
-{
-    [CmdletBinding(DefaultParameterSetName='1')]
-    Param
-    (
+                   )][alias('did')]
+    $DirectiveID,
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     [ValidateSet('global','datazone','tenant')]$scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
+    if ($scope -eq "tenant")
+        {
+        $scope = "$scope/$tenantid"
+        }
+    }
+    Process
+    {
+    $Method = "$scope/$Myself/$DirectiveID"
+    $MethodType = 'GET'
+    try
+        {
+        if ($DirectiveID)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
+        }
+    catch
+        {
+        Get-NWWebException -ExceptionMessage $_
+        return
+        }
+    }
+    End
+    {
+
+    }
+}
+function Get-NWJobgroup
+{
+    [CmdletBinding(DefaultParameterSetName='1')]
+    Param
+    (
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
+    )
+    Begin
+    {
+    $ContentType = "application/json"
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -377,24 +394,27 @@ function Get-NWjobgroups
 
     }
 }
-function Get-NWjobindications
+function Get-NWJobindication
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
+
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
+
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -419,135 +439,136 @@ function Get-NWjobindications
 
     }
 }
-function Get-NWjobs
+function Get-NWJob
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    $tenantid,
     [Parameter(Mandatory=$false,Position = 0,
                    ValueFromPipeline=$true
-                   )][alias('Jobid')]
-    $Id
-
-    )
-    Begin
-    {
-    $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
-    if ($scope -eq "tenant")
-        {
-        $scope = "$scope/$tenantid"
-        }
-    }
-    Process
-    {
-    $Method = "$scope/$Myself/$id"
-    $MethodType = 'GET'
-    try
-        {
-        if ($id)
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-        else
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-
-        }
-    catch
-        {
-        Get-NWWebException -ExceptionMessage $_
-        return
-        }
-    }
-
-    End
-    {
-
-    }
-}
-function Get-NWlabels
-{
-    [CmdletBinding(DefaultParameterSetName='1')]
-    Param
-    (
+                   )][alias('Jid')]
+    $JobID,
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    $tenantid,
-    [Parameter(Mandatory=$false,Position = 0,
-                   ValueFromPipeline=$true
-                   )][alias('labelid')]
-    $Id
-
-    )
-    Begin
-    {
-    $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
-    if ($scope -eq "tenant")
-        {
-        $scope = "$scope/$tenantid"
-        }
-    }
-    Process
-    {
-    $Method = "$scope/$Myself/$id"
-    $MethodType = 'GET'
-    try
-        {
-        if ($id)
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-        else
-            {
-            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
-            }
-
-        }
-    catch
-        {
-        Get-NWWebException -ExceptionMessage $_
-        return
-        }
-    }
-    End
-    {
-
-    }
-}
-function Get-NWnotifications
-{
-    [CmdletBinding(DefaultParameterSetName='1')]
-    Param
-    (
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
+    if ($scope -eq "tenant")
+        {
+        $scope = "$scope/$tenantid"
+        }
+    }
+    Process
+    {
+    $Method = "$scope/$Myself/$JobID"
+    $MethodType = 'GET'
+    try
+        {
+        if ($JobID)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
+        }
+    catch
+        {
+        Get-NWWebException -ExceptionMessage $_
+        return
+        }
+    }
+
+    End
+    {
+
+    }
+}
+function Get-NWLabel
+{
+    [CmdletBinding(DefaultParameterSetName='1')]
+    Param
+    (
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('lid')]
+    $LabelID,
+        [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
+    )
+    Begin
+    {
+    $ContentType = "application/json"
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
+    if ($scope -eq "tenant")
+        {
+        $scope = "$scope/$tenantid"
+        }
+    }
+    Process
+    {
+    $Method = "$scope/$Myself/$LabelID"
+    $MethodType = 'GET'
+    try
+        {
+        if ($LabelID)
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+        else
+            {
+            (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+            }
+
+        }
+    catch
+        {
+        Get-NWWebException -ExceptionMessage $_
+        return
+        }
+    }
+    End
+    {
+
+    }
+}
+function Get-NWNotification
+{
+    [CmdletBinding(DefaultParameterSetName='1')]
+    Param
+    (
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
+    )
+    Begin
+    {
+    $ContentType = "application/json"
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -572,11 +593,15 @@ function Get-NWnotifications
 
     }
 }
-function Get-NWpools
+function Get-NWPool
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
+    [Parameter(Mandatory=$false,Position = 0,
+                   ValueFromPipeline=$true
+                   )][alias('Pid')]
+    $PoolID,
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
                    )]
@@ -584,13 +609,7 @@ function Get-NWpools
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$true
                    )]
-    $tenantid,
-    [Parameter(Mandatory=$false,Position = 0,
-                   ValueFromPipeline=$true
-                   )][alias('Poolid')]
-    $Id
-
-    )
+    $tenantid    )
     Begin
     {
     $ContentType = "application/json"
@@ -602,11 +621,11 @@ function Get-NWpools
     }
     Process
     {
-    $Method = "$scope/$Myself/$id"
+    $Method = "$scope/$Myself/$PoolID"
     $MethodType = 'GET'
     try
         {
-        if ($id)
+        if ($PoolID)
             {
             (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType )# .$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
             }
@@ -627,24 +646,25 @@ function Get-NWpools
 
     }
 }
-function Get-NWprobes
+function Get-NWProbe
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -669,7 +689,7 @@ function Get-NWprobes
 
     }
 }
-function Get-NWprotectiongroups
+function Get-NWProtectiongroup
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
@@ -678,20 +698,21 @@ function Get-NWprotectiongroups
                    ValueFromPipeline=$true
                    )][alias('Name')]
     $ProtectionGroupName,
-
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
                    ValueFromPipeline=$false
                    )]
     $tenantid
+
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -728,24 +749,26 @@ function Get-NWprotectiongroups
 
     }
 }
-function Get-NWprotectionpolicies
+function Get-NWProtectionpolicies
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
+
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -770,24 +793,25 @@ function Get-NWprotectionpolicies
 
     }
 }
-function Get-NWserverconfig
+function Get-NWServerconfig
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -812,24 +836,25 @@ function Get-NWserverconfig
 
     }
 }
-function Get-NWsessions
+function Get-NWSession
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -854,24 +879,25 @@ function Get-NWsessions
 
     }
 }
-function Get-NWstoragenodes
+function Get-NWStoragenode
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -896,24 +922,25 @@ function Get-NWstoragenodes
 
     }
 }
-function Get-NWusergroups
+function Get-NWUsergroup
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -938,24 +965,25 @@ function Get-NWusergroups
 
     }
 }
-function Get-NWvolumes
+function Get-NWVolume
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
     [Parameter(Mandatory=$false,
-                   ValueFromPipeline=$true
+                   ValueFromPipeline=$false
                    )]
     $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = $MyInvocation.MyCommand.Name.Substring(6)
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -980,31 +1008,29 @@ function Get-NWvolumes
 
     }
 }
-#GET /protectionpolicies/{policyId}/workflows#
-function Get-NWWorkflows
+function Get-NWWorkflow
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
     (
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
-                   )]
-    [ValidateSet('global','datazone','tenant')]$scope = "global",
-    [Parameter(Mandatory=$false
-                   #ValueFromPipeline=$true
-                   )]
-    $tenantid,
     [Parameter(Mandatory=$true,ParameterSetname = 1,
                    ValueFromPipelineByPropertyName=$true
-                   )][alias('ClientID')]
-    $PolicyName
-
-
+                   )][alias('name')]
+    $PolicyName,
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]
+    $scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
     )
     Begin
     {
     $ContentType = "application/json"
-    $Myself = ($MyInvocation.MyCommand.Name.Substring(6)).ToLower()
+    $Myself = ($MyInvocation.MyCommand.Name.Substring(6)).ToLower()+"s"
     if ($scope -eq "tenant")
         {
         $scope = "$scope/$tenantid"
@@ -1030,5 +1056,3 @@ function Get-NWWorkflows
 
     }
 }
-
-
