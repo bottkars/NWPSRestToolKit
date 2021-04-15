@@ -9,10 +9,10 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-# RootModule = ''
+RootModule = './NWPSRestToolKit.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '19.0'
 
 # ID used to uniquely identify this module
 GUID = '090e9b20-d66e-40f6-aea0-430cd03e25fc'
@@ -21,16 +21,16 @@ GUID = '090e9b20-d66e-40f6-aea0-430cd03e25fc'
 Author = 'Karsten Bott'
 
 # Company or vendor of this module
-CompanyName = 'EMC'
+CompanyName = 'Dell|EMC'
 
 # Copyright statement for this module
 Copyright = 'Apache 2.0'
 
 # Description of the functionality provided by this module
-Description = 'Powershell Modules for EMC Networker REST API'
+Description = 'Powershell Modules for Dell|EMC Networker REST API'
 
 # Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '3.0'
+PowerShellVersion = '5.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -63,12 +63,13 @@ PowerShellVersion = '3.0'
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @('.\NWPSrestToolKit.psm1',
-'.\methods\get.psm1',
-'.\methods\post.psm1',
-'.\methods\put.psm1',
-'.\methods\delete.psm1',
-'.\errors\errors.psm1')
+NestedModules = @(
+'./Modules/get',
+'./Modules/post',
+'./Modules/put',
+'./Modules/delete',
+'./Modules/datadomain',
+'./errors/errors')
 
 # Functions to export from this module
 FunctionsToExport = '*'
