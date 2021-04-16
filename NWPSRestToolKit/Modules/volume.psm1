@@ -1,13 +1,7 @@
-
-
-function Get-NWDatadomainSystem {
+function Get-NWVolume {
     [CmdletBinding(DefaultParameterSetName = '1')]
     Param
     (
-        [Parameter(Mandatory = $false, Position = 0,
-            ValueFromPipelineByPropertyName = $true
-        )][alias('ClientName')]
-        $name,
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false
         )]
@@ -21,23 +15,22 @@ function Get-NWDatadomainSystem {
     Begin {
         $ContentType = "application/json"
         $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower() + "s"
-        $MyClients = @()
         if ($scope -eq "tenant") {
             $scope = "$scope/$tenantid"
         }
+        $Response= @()
         $Method = "GET"
     }
+
     Process {
         $Parameters = @{
             body    = $body 
             Method  = $Method
-            Uri     = "$scope/$myself/$ClientRessourceId"
+            Uri     = "$scope/$myself"
             Verbose = $PSBoundParameters['Verbose'] -eq $true
         }    
         try {
-            $Method = "$scope/$Myself/$ClientRessourceId"
-            $MethodType = 'GET'
-            $MyClients += Invoke-NWAPIRequest @Parameters
+            $Response += Invoke-NWAPIRequest @Parameters
         }
         catch {
             Get-NWWebException -ExceptionMessage $_
@@ -45,14 +38,13 @@ function Get-NWDatadomainSystem {
         }
     }
     End {
-        Write-Verbose ($MyClients | Out-String)
+        Write-Verbose ($Response | Out-String)
         if ($hostname) {
-            Write-Output ($MyClients.Content | ConvertFrom-Json).$Myself | Where-Object name -match $name
+            Write-Output ($Response.Content | ConvertFrom-Json).$Myself | Where-Object name -match $name
         }
         else {
-            Write-Output ($MyClients.Content | ConvertFrom-Json).$Myself
+            Write-Output ($Response.Content | ConvertFrom-Json).$Myself
         }
-
+    
     }
 }
-# (Invoke-NWAPIRequest -uri global/datadomainsystems -Method get -RequestMethod Rest ).datadomainsystems 

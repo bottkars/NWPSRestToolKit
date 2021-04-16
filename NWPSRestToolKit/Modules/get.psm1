@@ -84,6 +84,7 @@ function Get-NWAuditlogconfig
 
     }
 }
+<#
 function Get-NWBackup
 {
     [CmdletBinding(DefaultParameterSetName='1')]
@@ -168,6 +169,8 @@ function Get-NWBackup
 
     }
 }
+#>
+<#
 function Get-NWClient
 {
     [CmdletBinding(DefaultParameterSetName='1')]
@@ -238,6 +241,8 @@ function Get-NWClient
 
     }
 }
+#>
+
 function Get-NWDevice
 {
     [CmdletBinding(DefaultParameterSetName='1')]
@@ -965,7 +970,7 @@ function Get-NWUsergroup
 
     }
 }
-function Get-NWVolume
+<#function Get-NWVolume
 {
     [CmdletBinding(DefaultParameterSetName='1')]
     Param
@@ -1008,6 +1013,7 @@ function Get-NWVolume
 
     }
 }
+#>
 function Get-NWWorkflow
 {
     [CmdletBinding(DefaultParameterSetName='1')]
@@ -1056,3 +1062,4 @@ function Get-NWWorkflow
 
     }
 }
+#>

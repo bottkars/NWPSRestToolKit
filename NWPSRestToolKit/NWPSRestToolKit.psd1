@@ -69,6 +69,10 @@ NestedModules = @(
 './Modules/put',
 './Modules/delete',
 './Modules/datadomain',
+'./Modules/clients',
+'./Modules/jobs',
+'./Modules/volume',
+'./Modules/backups'
 './errors/errors')
 
 # Functions to export from this module

@@ -1,13 +1,7 @@
-
-
-function Get-NWDatadomainSystem {
+function Get-NWJob {
     [CmdletBinding(DefaultParameterSetName = '1')]
     Param
     (
-        [Parameter(Mandatory = $false, Position = 0,
-            ValueFromPipelineByPropertyName = $true
-        )][alias('ClientName')]
-        $name,
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false
         )]
@@ -43,16 +37,10 @@ function Get-NWDatadomainSystem {
             Get-NWWebException -ExceptionMessage $_
             return
         }
+        Write-Verbose ($MyClients | Out-String)
+        Write-Output ($MyClients.Content | ConvertFrom-Json).$Myself
     }
     End {
-        Write-Verbose ($MyClients | Out-String)
-        if ($hostname) {
-            Write-Output ($MyClients.Content | ConvertFrom-Json).$Myself | Where-Object name -match $name
-        }
-        else {
-            Write-Output ($MyClients.Content | ConvertFrom-Json).$Myself
-        }
 
     }
 }
-# (Invoke-NWAPIRequest -uri global/datadomainsystems -Method get -RequestMethod Rest ).datadomainsystems 
