@@ -23,6 +23,7 @@ function Get-NWBackup {
     )
 
     Begin {
+        Write-Verbose ( $MyInvocation | Out-String )
         $ContentType = "application/json"
         $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower() + "s"
         $Result = @()

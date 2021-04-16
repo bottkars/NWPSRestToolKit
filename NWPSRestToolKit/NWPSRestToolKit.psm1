@@ -109,6 +109,9 @@
             $apiver = "v3",
             [Parameter(Mandatory = $false, ParameterSetName = 'default')]
             [Parameter(Mandatory = $false, ParameterSetName = 'infile')]
+            $ResponseHeadersVariable,            
+            [Parameter(Mandatory = $false, ParameterSetName = 'default')]
+            [Parameter(Mandatory = $false, ParameterSetName = 'infile')]
             $apiport = "$($Global:NWPORT)",        
             [Parameter(Mandatory = $false, ParameterSetName = 'default')]
             [Parameter(Mandatory = $false, ParameterSetName = 'infile')]
@@ -123,7 +126,8 @@
             [Parameter(Mandatory = $true, ParameterSetName = 'infile')]
             $InFile
         )
-        $uri = "$($Global:NWBaseUri):$apiport/nwrestapi/$apiver/$uri"
+        $uri = "$($Global:NWBaseUri):$apiport/nwrestapi/$apiver/$($uri.trimStart('/'))"
+        $uri = $uri.TrimEnd('/')
         if ($Global:NWCredentials) {
             # $Headers = $Global:NW_Headers
             Write-Verbose ($Headers | Out-String)
@@ -155,6 +159,9 @@
                         Write-Verbose $filterstring | Out-String
                         $uri = "$($uri)?$filterstring"
                         Write-Verbose $uri
+                    }
+                    if ($ResponseHeadersVariable) {
+                        $Parameters.Add('ResponseHeadersVariable', 'HeadersResponse')
                     }
 
                 }
@@ -189,6 +196,10 @@
             Write-Warning "NW_Headers are not present. Did you connect to NW  using Connect-NWserver ? "
             break
         }
+        if ($ResponseHeadersVariable)
+    {
+        Write-Output $HeadersResponse 
+    }
 
         Write-Output $Result
     }
