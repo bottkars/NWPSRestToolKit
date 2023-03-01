@@ -75,6 +75,8 @@ NestedModules = @(
 './Modules/backups',
 './Modules/protectionpolicies',
 './Modules/inspect',
+'./Modules/pools',
+'./Modules/devices',
 './errors/errors')
 
 # Functions to export from this module

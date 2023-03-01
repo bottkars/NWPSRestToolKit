@@ -74,3 +74,65 @@ function Get-NWBackup {
 
     }
 }
+
+
+function Get-NWClientBackups {
+    [CmdletBinding(DefaultParameterSetName = '1')]
+    Param
+    (
+        [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true)]
+        [alias('ResID',"ID")]
+        $resourceId,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        [ValidateSet('global', 'datazone', 'tenant')]
+        $scope = "global",
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        $tenantid
+    )
+    Begin {
+        $ContentType = "application/json"
+        $Myself =  "clients"
+        $local:Response = @()
+        if ($scope -eq "tenant") {
+            $scope = "$scope/$tenantid"
+        }
+        $Method = "GET"
+    }
+    Process {
+        Write-Verbose $resourceId.id
+        If ($resourceId.id)
+            {
+                $ClientId = $resourceId.id
+            }
+            else {
+                $ClientId = $resourceId
+                <# Action when all if and elseif conditions are false #>
+            }
+        $Parameters = @{
+            RequestMethod = "REST"
+            body          = $body 
+            Method        = $Method
+            Verbose       = $PSBoundParameters['Verbose'] -eq $true
+        }
+
+            $Parameters.Add('Uri', "$scope/$myself/$ClientId/backups")
+
+        try {
+            $local:Response += Invoke-NWAPIRequest @Parameters
+        }
+        catch {
+            Get-NWWebException -ExceptionMessage $_
+            return
+        }
+        Write-Verbose ($local:Response | Out-String)
+
+
+        Write-Output $local:Response.backups
+
+        }
+
+
+    End {
+
+    }
+}

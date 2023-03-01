@@ -24,8 +24,16 @@ function Get-NWClient {
             $scope = "$scope/$tenantid"
         }
         $Method = "GET"
+        $body = @{}
     }
+
+        
     Process {
+        
+        if ($hostname)
+        {
+            $body.Add('q',"hostname:$hostname")
+        }    
         $Parameters = @{
             RequestMethod = "REST"
             body          = $body 
@@ -53,7 +61,7 @@ function Get-NWClient {
             }
             Default {
                 if ($hostname) {
-                    Write-Output $local:Response.$Myself | Where-Object hostname -match $hostname 
+                    Write-Output $local:Response.$Myself # | Where-Object hostname -match $hostname 
                 }
                 else {
                     Write-Output $local:Response.$Myself 
