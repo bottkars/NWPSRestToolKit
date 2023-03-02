@@ -69,6 +69,7 @@ NestedModules = @(
 './Modules/put',
 './Modules/delete',
 './Modules/datadomain',
+'./Modules/vproxy'
 './Modules/clients',
 './Modules/jobs',
 './Modules/volume',
@@ -77,6 +78,7 @@ NestedModules = @(
 './Modules/inspect',
 './Modules/pools',
 './Modules/devices',
+'./Modules/vmware'
 './errors/errors')
 
 # Functions to export from this module
