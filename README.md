@@ -7,41 +7,11 @@ the Goal of the Networker Powershell Toolkit is to make a Networker Admin´s liv
 teh Toolkit should support Pielining of commands, and combine the value of Powershell with the strength of the RestAPI
 
 
-### requirements
-in order to run the commands, you need to unrestrict executionpolicy.
-also, make sure to unblock the zipfile if you download the modules as zip and not via git ( unblock-file or right click in explorer )
-open a powershell as admin and run
+
+
+install the modules from psgallery
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted
-```
-### Notice
-! all commands ending with an "s"  represent a plural and derived from the api. however, in my process of object re-writes i will also switch to singular commands without trailing "s"
-if there are examples with the plural, they might change to singular ( eg. clients to client ! )
-
-## installation  
-The Modules are loaded via Import-Module NWPSRestToolKit
-The Module sudirectories are based on the methods and functions , eg GET,PUT,POST..., errors.
-
-use this Automatic downloader to install NWPSRestToolKit:  
-(COPY TEXT INTO A  POWERSHELL)
-```Powershell
-$Uri="https://gist.githubusercontent.com/bottkars/a555ee59c63b65dbb38f027a547030ba/raw/install-nwpsresttoolkit.ps1"
-$DownloadLocation = "$Env:USERPROFILE\Downloads"
-$File = Split-Path -Leaf $Uri
-$OutFile = Join-Path $DownloadLocation $File
-Invoke-WebRequest -Uri $Uri -OutFile $OutFile
-Unblock-File -Path $Outfile
-Set-Location $DownloadLocation
-.\install-NWPSRestToolKit.ps1 -Installpath [replacewithyourdestination]
-```
-## alternative installation  
-if not using the Downloader, i Recommend cloning into the modules using and do regular pulls for update rather than downloading the zip. this also eliminates the need for unblocking the zip archive !!! )
-
-consider https://desktop.github.com/ for windows
-
-import the modules
-```powershell
-import-module \path-to-moduledir\NWPSRestToolKit.psd1
+Install-Module NWPSRestToolKit
 ```
 
 test the commnds from the module :-)  
