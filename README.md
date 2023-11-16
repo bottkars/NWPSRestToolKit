@@ -1,13 +1,13 @@
 # NWPSRestToolKit
 
-https://api-marketplace.dell.com/
-Powershell Toolkit for Networker Rest API 
-###about
+[Dell Developer API Marketplace](https://developer.dell.com/apis/2378/versions/v3/docs/tutorials/Tutorial-1APIBasics.md)  
+Powershell Toolkit for Networker Rest API  
+### about
 the Goal of the Networker Powershell Toolkit is to make a Networker Admin´s live on windows easier  
 teh Toolkit should support Pielining of commands, and combine the value of Powershell with the strength of the RestAPI
 
 
-###requirements
+### requirements
 in order to run the commands, you need to unrestrict executionpolicy.
 also, make sure to unblock the zipfile if you download the modules as zip and not via git ( unblock-file or right click in explorer )
 open a powershell as admin and run
@@ -35,7 +35,7 @@ Set-Location $DownloadLocation
 .\install-NWPSRestToolKit.ps1 -Installpath [replacewithyourdestination]
 ```
 ## alternative installation  
-if not using the Downloader, i Recommend cloning into the modules using and do regular pulls for update rather tan downloading the zip. this also eliminates the need for unblocking the zip archive !!! )
+if not using the Downloader, i Recommend cloning into the modules using and do regular pulls for update rather than downloading the zip. this also eliminates the need for unblocking the zip archive !!! )
 
 consider https://desktop.github.com/ for windows
 
@@ -52,7 +52,7 @@ try to connect to your Networker Server
 the cmdlet shall Respond with the servername and operating sytem of the server
 
 ## Examples  
-View Vbackups of a Client Using ressourceID od the Client
+View backups of a Client Using ressourceID od the Client
 
 ![image](https://cloud.githubusercontent.com/assets/8255007/16623185/37dec11e-439d-11e6-8484-28f60357836a.png)
 
