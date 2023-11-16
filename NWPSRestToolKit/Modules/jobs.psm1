@@ -1,5 +1,6 @@
-function Get-NWJob {
+function Get-NWJobs {
     [CmdletBinding(DefaultParameterSetName = '1')]
+    [Alias('Get-NWJob')]
     Param
     (
         [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
@@ -17,7 +18,7 @@ function Get-NWJob {
     )
     Begin {
         $ContentType = "application/json"
-        $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower() + "s"
+        $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()
         $local:Response = @()
         if ($scope -eq "tenant") {
             $scope = "$scope/$tenantid"
@@ -43,7 +44,13 @@ function Get-NWJob {
 
     }
     End {
+
         Write-Verbose ($local:Response | Out-String)
-        Write-Output $local:Response
+        If ($JobId) {
+            Write-Output $local:Response
+        }
+        else {
+            write-output $local:Response.$Myself
+        }
     }
-}
+} 

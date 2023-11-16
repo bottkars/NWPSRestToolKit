@@ -50,6 +50,82 @@
         Write-Output $Response.Content | ConvertFrom-Json
     }
 }
+
+
+
+function Connect-NWServerV2 {
+    [CmdletBinding()]
+    Param
+    (    [CmdletBinding()]
+
+    [Parameter(Mandatory = $true)]
+    $NWIP,
+    [Parameter(Mandatory = $false)]$NWPort = 9090,
+    [Parameter(Mandatory = $false)][pscredential]$Credentials,
+    [Parameter(Mandatory = $false)][ValidateSet('v1', 'v2', 'v3')][string]$apiver = "v3",
+    [Parameter(Mandatory = $false)][switch]$trustCert,
+    [Parameter(Mandatory = $false)][ValidateSet('global', 'datazone', 'tenant')]
+    $scope = "global"
+    )
+
+    Begin {
+        if ($trustCert.IsPresent) {
+            if ($($PSVersionTable.PSVersion.Major) -ge 6) {
+                $global:SkipCertificateCheck = $TRUE
+            }
+            else {
+                Unblock-NWCerts 
+            }
+
+        } 
+        $Method = "POST" 
+    }
+    Process {
+        if (!$Global:NWCredentials) {
+            $User = Read-Host -Prompt "Please enter the username for Networker Administrator"
+            $SecurePassword = Read-Host -Prompt "Enter Networker Password for user $user" -AsSecureString
+            $Global:NWCredentials = New-Object System.Management.Automation.PSCredential (“$user”, $Securepassword)
+        }
+
+        $Headers = @{
+            'Token-Type' = "jwt" 
+        }
+        $Parameters = @{
+            Uri             = "https://$($NWIP):$($NWPort)/auth-server/api/sec/authenticate"
+            Authentication  = "Basic"
+            Credential      = $Global:NWCredentials
+            Method          = "POST"
+            ContentType     = "Application/Json"
+            Verbose         = $PSBoundParameters['Verbose'] -eq $true
+            Headers         = $Headers 
+            SessionVariable = "SessionVariable"
+        }
+        if ($Global:SkipCertificateCheck) {
+            $Parameters.Add('SkipCertificateCheck', $True)
+        }
+        Write-Verbose ($Parameters | Out-String)
+        $Token = Invoke-RestMethod @Parameters -Verbose
+        $Global:NWHeaders = @{
+            'Authorization' = "Bearer $($Token.data.token)" 
+        }
+        $Global:NWbaseurl = "https://$($NWIP):$($NWPort)"
+        $Global:NWbaseuri = "https://$($NWIP)"
+        $Global:NWPort = $NWPort
+        # Building Hash Literal for unified call
+        $Parameters = @{
+            body        = $body 
+            Method      = "GET"
+            Uri         = "$scope/serverconfig"
+            Verbose     = $PSBoundParameters['Verbose'] -eq $true
+            ContentType = "Application/Json"
+        } 
+    }
+    End {
+        $Response = Invoke-NWAPIRequest @Parameters  
+        Write-Verbose $Response
+        Write-Output $Response.Content | ConvertFrom-Json
+    }
+}
 function Unblock-NWCerts {
     Add-Type -TypeDefinition @"
 	    using System.Net;
@@ -118,26 +194,32 @@ function Invoke-NWAPIRequest {
         $NW_BaseUri = $($Global:NW_BaseUri),
         [Parameter(Mandatory = $false, ParameterSetName = 'default')]
         [Parameter(Mandatory = $false, ParameterSetName = 'infile')]
-        [ValidateSet('Rest', 'Web')]$RequestMethod,        
+        [ValidateSet('Rest', 'Web')]$RequestMethod,
+        [Parameter(Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'infile')]
+        $API="nwrestapi/$apiver",       
         [Parameter(Mandatory = $false, ParameterSetName = 'default')]
         $Body,
+        [Parameter(Mandatory = $false, ParameterSetName = 'default')]
+        $Headers = @{},        
         [Parameter(Mandatory = $false, ParameterSetName = 'default')]
         $Filter,
         [Parameter(Mandatory = $true, ParameterSetName = 'infile')]
         $InFile
     )
-    $uri = "$($Global:NWBaseUri):$apiport/nwrestapi/$apiver/$($uri.trimStart('/'))"
+    $uri = "$($Global:NWBaseUri):$apiport/$API/$($uri.trimStart('/'))"
     $uri = $uri.TrimEnd('/')
     if ($Global:NWCredentials) {
-        # $Headers = $Global:NW_Headers
-        Write-Verbose ($Headers | Out-String)
+        $CallHeaders = $Global:NWHeaders
+        $CallHeaders += $Headers
+        Write-Verbose ($CallHeaders | Out-String)
         Write-Verbose "==> Calling $uri"
         $Parameters = @{
             UseBasicParsing = $true 
             Method          = $Method
-            #        Headers         = $Headers
+            Headers         = $CallHeaders
             ContentType     = $ContentType
-            Credential      = $NWCredentials
+            #            Credential      = $NWCredentials
         }
         switch ($PsCmdlet.ParameterSetName) {    
             'infile' {
@@ -199,6 +281,8 @@ function Invoke-NWAPIRequest {
     if ($ResponseHeadersVariable) {
         Write-Output $HeadersResponse 
     }
-
-    Write-Output $Result
+    else {
+        Write-Output $Result
+    }
+    
 }

@@ -1,6 +1,6 @@
 
 
-function Get-NWDevices {
+function Get-NWDirectives {
     [CmdletBinding(DefaultParameterSetName = '1')]
     Param
     (
@@ -30,7 +30,7 @@ function Get-NWDevices {
             RequestMethod = "REST"
             body          = $body 
             Method        = $Method
-            Uri           = "$scope/$myself/$DeviceName"
+            Uri           = "$scope/$myself"
             Verbose       = $PSBoundParameters['Verbose'] -eq $true
         }    
         try {
@@ -49,7 +49,7 @@ function Get-NWDevices {
             Write-Output $local:Response
         }
         else {
-            Write-Output $local:Response.$Myself  <# Action when all if and elseif conditions are false #>
+            Write-Output $local:Response  <# Action when all if and elseif conditions are false #>
         }
         
 

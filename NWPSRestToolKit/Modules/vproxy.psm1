@@ -17,26 +17,26 @@ function Register-NWvProxy {
     [CmdletBinding()]
     Param
     (
-        [Parameter(Mandatory = $True,ValueFromPipelineByPropertyName = $true)][alias('hostname')]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)][alias('hostname')]
         $name,
-        [Parameter(Mandatory = $True,ValueFromPipelineByPropertyName = $true)][alias('vc')]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)][alias('vc')]
         $vCenterHostname,    
-        [Parameter(Mandatory = $True,ValueFromPipelineByPropertyName = $true)][alias('proxyuser')]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)][alias('proxyuser')]
         $userName,
-        [Parameter(Mandatory = $True,ValueFromPipelineByPropertyName = $true)][alias('proxypassword')]
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)][alias('proxypassword')]
         $password,
-        [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName = $true)][alias('port')]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)][alias('port')]
         $vProxyPort = "9090",
-        [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName = $true)][alias('maxhotadd')]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)][alias('maxhotadd')]
         $maxHotaddSessions = 13,
-        [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName = $true)][alias('maxnbd')]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)][alias('maxnbd')]
         $maxNbdSessions = 13,
-        [Parameter(Mandatory = $false,ValueFromPipelineByPropertyName = $true)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName = $true)]
         [switch]$enabled,
-        [Parameter(Mandatory = $false,ValueFromPipeline = $false)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
         [ValidateSet('global', 'datazone', 'tenant')]
         $scope = "global",
-        [Parameter(Mandatory = $false,ValueFromPipeline = $false)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
         $tenantid
     )
     Begin {
@@ -49,20 +49,20 @@ function Register-NWvProxy {
     }
     Process {
         $body = @{}
-        $body.Add('hostname',$name)
-        $body.Add('enabled',$enabled.IsPresent)
-        $body.Add('vCenterHostname',$vCenterHostname)
-        $body.Add('userName',$userName)
-        $body.Add('password',$password)
-        $body.Add('vProxyPort',$vProxyPort)
-        $body.Add('maxHotaddSessions',$maxHotaddSessions)
-        $body.Add('maxNbdSessions',$maxNbdSessions)
+        $body.Add('hostname', $name)
+        $body.Add('enabled', $enabled.IsPresent)
+        $body.Add('vCenterHostname', $vCenterHostname)
+        $body.Add('userName', $userName)
+        $body.Add('password', $password)
+        $body.Add('vProxyPort', $vProxyPort)
+        $body.Add('maxHotaddSessions', $maxHotaddSessions)
+        $body.Add('maxNbdSessions', $maxNbdSessions)
         $Parameters = @{
             RequestMethod = "REST"
-            body    = $body | ConvertTo-Json
-            Method  = $Method
-            Uri     = "$scope/$myself"
-            Verbose = $PSBoundParameters['Verbose'] -eq $true
+            body          = $body | ConvertTo-Json
+            Method        = $Method
+            Uri           = "$scope/$myself"
+            Verbose       = $PSBoundParameters['Verbose'] -eq $true
         }    
         try {
             $local:Response += Invoke-NWAPIRequest @Parameters
@@ -121,7 +121,7 @@ function Get-NWvProxies {
         Write-Verbose ($local:Response | Out-String)
         switch ($PSCmdlet.ParameterSetName) {
             'ByName' {
-                Write-Output $local:Response
+                Write-Output $local:Response.vProxies
             }
             default {
                 Write-Output $local:Response.vProxies
@@ -158,3 +158,179 @@ function Get-NWvProxies {
 	"currentPage": "vmResources"
 }
 #>
+
+function Update-NWvProxies {
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)]
+        [alias('vProxyName')]
+        $hostname,
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
+        [string]$comments,
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
+        [ValidateRange(0, 9)][int]$debugLevel = 0, 
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
+        [ValidateRange(10, 1440)][int]$timeoutInMins = 10, 
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
+        [string]$rootPasswd,  
+        [Parameter(Mandatory = $False, ValueFromPipelineByPropertyName = $true)]
+        [switch]$DontuseAdminPWasRoot,                                 
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        [ValidateSet('global', 'datazone', 'tenant')]
+        $scope = "global",
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        $tenantid
+    )
+    Begin {
+        $ContentType = "application/json"
+        $local:Response = @()
+        if ($scope -eq "tenant") {
+            $scope = "$scope/$tenantid"
+        }
+        $Method = "POST"
+    }
+    Process {
+        $Body = @{}
+        $body.add('comments', $comments)
+        $body.add('debugLevel', $debugLevel)
+        $body.add('timeoutInMins', $timeoutInMins)
+        if ($DontuseAdminPWasRoot.IsPresent) {
+            $body.add('rootPasswd', $rootPasswd)
+        }          
+        else {  
+            $body.add('adminPasswordAsRoot', "true")
+        }
+        $body = $Body | ConvertTo-Json
+        Write-Verbose ($body | out-string)
+        $Parameters = @{
+            RequestMethod           = "REST"
+            body                    = $body 
+            Method                  = $Method
+            Uri                     = "$scope/vmware/vproxies/$hostname/op/redeployment"
+            Verbose                 = $PSBoundParameters['Verbose'] -eq $true
+            ResponseHeadersVariable = "HeaderResponse"
+        }    
+        try {
+            $local:Response += Invoke-NWAPIRequest @Parameters
+        }
+        catch {
+            Get-NWWebException -ExceptionMessage $_
+            return
+        }
+    }
+    End {
+        Write-Verbose ($local:Response | Out-String)
+        If ($Response.'Location') {
+            $JOB = $Response.'Location' | split-path -Leaf 
+            Get-NWJobs -id $JOB            
+        }
+
+    }
+}
+
+function Get-NWvProxiesRedeployment {
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory = $True, ValueFromPipelineByPropertyName = $true)]
+        [alias('vProxyName')]
+        $hostname,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        [ValidateSet('global', 'datazone', 'tenant')]
+        $scope = "global",
+        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
+        $tenantid
+    )
+    Begin {
+        $ContentType = "application/json"
+        $local:Response = @()
+        if ($scope -eq "tenant") {
+            $scope = "$scope/$tenantid"
+        }
+        $Method = "GET"
+    }
+    Process {
+        $Body = @{}
+        $body = $Body | ConvertTo-Json
+        Write-Verbose ($body | out-string)
+        $Parameters = @{
+            RequestMethod           = "REST"
+            body                    = $body 
+            Method                  = $Method
+            Uri                     = "$scope/vmware/vproxies/$hostname/op/redeployment"
+            Verbose                 = $PSBoundParameters['Verbose'] -eq $true
+#            ResponseHeadersVariable = "HeaderResponse"
+        }    
+        try {
+            $local:Response += Invoke-NWAPIRequest @Parameters
+        }
+        catch {
+            Get-NWWebException -ExceptionMessage $_
+            return
+        }
+    }
+    End {
+        Write-Verbose ($local:Response | Out-String)
+        switch ($PSCmdlet.ParameterSetName) {
+            'ByName' {
+                Write-Output $local:Response
+            }
+            default {
+                Write-Output $local:Response
+            }
+        }
+
+    }
+}
+
+## https://nve.home.labbuildr.com:9090/nwui/api/sessions?type=vproxy
+
+function Get-NWvProxiesRedeploymentTasks {
+    [CmdletBinding()]
+    Param
+    (
+
+    )
+    Begin {
+        $ContentType = "application/json"
+        $local:Response = @()
+        if ($scope -eq "tenant") {
+            $scope = "$scope/$tenantid"
+        }
+        $Method = "GET"
+    }
+    Process {
+        $Body = @{}
+        $body = $Body | ConvertTo-Json
+        Write-Verbose ($body | out-string)
+        $Parameters = @{
+            RequestMethod           = "REST"
+            body                    = $body 
+            Method                  = $Method
+            Uri                     = "nwui/api/sessions?type=vproxy"
+            Verbose                 = $PSBoundParameters['Verbose'] -eq $true
+            API                     = "nwui/api/"
+#            ResponseHeadersVariable = "HeaderResponse"
+        }    
+        try {
+            $local:Response += Invoke-NWAPIRequest @Parameters
+        }
+        catch {
+            Get-NWWebException -ExceptionMessage $_
+            return
+        }
+    }
+    End {
+        Write-Verbose ($local:Response | Out-String)
+        switch ($PSCmdlet.ParameterSetName) {
+            'ByName' {
+                Write-Output $local:Response
+            }
+            default {
+                Write-Output $local:Response
+            }
+        }
+
+    }
+}

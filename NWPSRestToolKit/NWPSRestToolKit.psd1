@@ -8,105 +8,166 @@
 
 @{
 
-# Script module or binary module file associated with this manifest.
-RootModule = './NWPSRestToolKit.psm1'
+    # Script module or binary module file associated with this manifest.
+    RootModule        = './NWPSRestToolKit.psm1'
 
-# Version number of this module.
-ModuleVersion = '19.0'
+    # Version number of this module.
+    ModuleVersion     = '19.0'
 
-# ID used to uniquely identify this module
-GUID = '090e9b20-d66e-40f6-aea0-430cd03e25fc'
+    # ID used to uniquely identify this module
+    GUID              = '090e9b20-d66e-40f6-aea0-430cd03e25fc'
 
-# Author of this module
-Author = 'Karsten Bott'
+    # Author of this module
+    Author            = 'Karsten Bott'
 
-# Company or vendor of this module
-CompanyName = 'Dell|EMC'
+    # Company or vendor of this module
+    CompanyName       = 'Dell|EMC'
 
-# Copyright statement for this module
-Copyright = 'Apache 2.0'
+    # Copyright statement for this module
+    Copyright         = 'Apache 2.0'
 
-# Description of the functionality provided by this module
-Description = 'Powershell Modules for Dell|EMC Networker REST API'
+    # Description of the functionality provided by this module
+    Description       = 'Powershell Modules for Dell|EMC Networker REST API'
 
-# Minimum version of the Windows PowerShell engine required by this module
-PowerShellVersion = '5.0'
+    # Minimum version of the Windows PowerShell engine required by this module
+    PowerShellVersion = '5.0'
 
-# Name of the Windows PowerShell host required by this module
-# PowerShellHostName = ''
+    # Name of the Windows PowerShell host required by this module
+    # PowerShellHostName = ''
 
-# Minimum version of the Windows PowerShell host required by this module
-# PowerShellHostVersion = ''
+    # Minimum version of the Windows PowerShell host required by this module
+    # PowerShellHostVersion = ''
 
-# Minimum version of Microsoft .NET Framework required by this module
-# DotNetFrameworkVersion = ''
+    # Minimum version of Microsoft .NET Framework required by this module
+    # DotNetFrameworkVersion = ''
 
-# Minimum version of the common language runtime (CLR) required by this module
-# CLRVersion = ''
+    # Minimum version of the common language runtime (CLR) required by this module
+    # CLRVersion = ''
 
-# Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
+    # Processor architecture (None, X86, Amd64) required by this module
+    # ProcessorArchitecture = ''
 
-# Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+    # Modules that must be imported into the global environment prior to importing this module
+    # RequiredModules = @()
 
-# Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+    # Assemblies that must be loaded prior to importing this module
+    # RequiredAssemblies = @()
 
-# Script files (.ps1) that are run in the caller's environment prior to importing this module.
-# ScriptsToProcess = @()
+    # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+    # ScriptsToProcess = @()
 
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
+    # Type files (.ps1xml) to be loaded when importing this module
+    # TypesToProcess = @()
 
-# Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+    # Format files (.ps1xml) to be loaded when importing this module
+    # FormatsToProcess = @()
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @(
-'./Modules/get',
-'./Modules/post',
-'./Modules/put',
-'./Modules/delete',
-'./Modules/datadomain',
-'./Modules/vproxy'
-'./Modules/clients',
-'./Modules/jobs',
-'./Modules/volume',
-'./Modules/backups',
-'./Modules/protectionpolicies',
-'./Modules/inspect',
-'./Modules/pools',
-'./Modules/devices',
-'./Modules/vmware'
-'./errors/errors')
+    # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+    NestedModules     = @(
+        './Modules/get',
+        './Modules/post',
+        './Modules/put',
+        './Modules/delete',
+        './Modules/datadomain',
+        './Modules/vproxy'
+        './Modules/clients',
+        './Modules/jobs',
+        './Modules/volume',
+        './Modules/backups',
+        './Modules/protectionpolicies',
+        './Modules/inspect',
+        './Modules/pools',
+        './Modules/devices',
+        './Modules/vmware',
+        './Modules/protectiongroups',
+        './Modules/directives',
+        './Modules/workflows.psm1'
+        './errors/errors')
 
-# Functions to export from this module
-FunctionsToExport = '*'
+    # Functions to export from this module
+    FunctionsToExport = '*'
 
-# Cmdlets to export from this module
-CmdletsToExport = '*'
+    # Cmdlets to export from this module
+    CmdletsToExport   = (
+        'Add-NWClient2ProtectionGroup',
+#        'Connect-NWServer',
+        'Connect-NWServerV2',
+        'Get-NWAlert',
+        'Get-NWAuditlogconfig',
+        'Get-NWBackups',
+        'Get-NWClients',
+        'Get-NWClientBackups',
+        'Get-NWDatadomainSystem',
+        'Get-NWDatadomainSystemUnits',
+        'Get-NWDevices',
+        'Get-NWDirectives',
+        'Get-NWJob',
+        'Get-NWJobgroup',
+        'Get-NWJobindication',
+        'Get-NWLabel',
+        'Get-NWNotification',
+        'Get-NWPool',
+        'Get-NWPools',
+        'Get-NWProbe',
+        'Get-NWProtectedvmBackups',
+        'Get-NWprotectedvmdetails',
+        'Get-NWprotectedvms',
+        'Get-NWProtectiongroups',
+        'Get-NWProtectionPolicies',
+        'Get-NWServerconfig',
+        'Get-NWSession',
+        'Get-NWStoragenode',
+        'Get-NWUsergroup',
+        'Get-NWVMwareVMs',
+        'Get-NWVolume',
+        'Get-NWvProxies',
+        'Get-NWWebException',
+        'Get-NWWorkflow',
+        'Get-NWyesno',
+        'Invoke-NWAPIRequest',
+        'New-NWclient',
+        'New-NWDataDomainSystem',
+        'New-NWDatadomainSystemUnit',
+        'New-NWinspect',
+        'Register-NWvProxy',
+        'Remove-NWclient',
+        'Set-NWVMwareWorkitems',
+        'Start-NWClientBackup',
+        'Start-NWprotectedVMBackup',
+        'Start-NWWorkflows',
+        'Unblock-NWCerts',
+        'Update-NWDataDomainSystem',
+        'Remove-NWBackups',
+        'Set-NWWorkFlows',
+        'Update-NWvProxies'
+)
 
-# Variables to export from this module
-VariablesToExport = '*'
+    # Variables to export from this module
+    VariablesToExport = '*'
 
-# Aliases to export from this module
-AliasesToExport = '*'
+    # Aliases to export from this module
+    AliasesToExport   = (
+        'Get-NWBackup',
+        'Get-NWClient',
+        'Get-NWProtectiongroup',
+        'Get-NWJob',
+        'Get-NSRWorkflows'
+    )
 
-# List of all modules packaged with this module
-# ModuleList = @()
+    # List of all modules packaged with this module
+    # ModuleList = @()
 
-# List of all files packaged with this module
-# FileList = @()
+    # List of all files packaged with this module
+    # FileList = @()
 
-# Private data to pass to the module specified in RootModule/ModuleToProcess
-# PrivateData = ''
+    # Private data to pass to the module specified in RootModule/ModuleToProcess
+    # PrivateData = ''
 
-# HelpInfo URI of this module
-# HelpInfoURI = ''
+    # HelpInfo URI of this module
+    # HelpInfoURI = ''
 
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
+    # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
+    # DefaultCommandPrefix = ''
 
 }
 
