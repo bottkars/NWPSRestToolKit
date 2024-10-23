@@ -41,6 +41,53 @@
 
     }
 }
+
+
+function Get-NWrecoverapp
+{
+    [CmdletBinding(DefaultParameterSetName='1')]
+    Param
+    (
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    [ValidateSet('global','datazone','tenant')]$scope = "global",
+    [Parameter(Mandatory=$false,
+                   ValueFromPipeline=$false
+                   )]
+    $tenantid
+
+    )
+    Begin
+    {
+    $ContentType = "application/json"
+    $Myself = $MyInvocation.MyCommand.Name.Substring(6).ToLower()+"s"
+    if ($scope -eq "tenant")
+        {
+        $scope = "$scope/$tenantid"
+        }
+    }
+    Process
+    {
+    $Method = "$scope/$Myself"
+    $MethodType = 'GET'
+    Write-Verbose "$NWbaseurl/$Method"
+    try
+        {
+        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ).$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        }
+    catch
+        {
+        Get-NWWebException -ExceptionMessage $_
+        return
+        }
+    }
+    End
+    {
+
+    }
+}
+
 function Get-NWAuditlogconfig
 {
     [CmdletBinding(DefaultParameterSetName='1')]

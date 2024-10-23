@@ -32,7 +32,7 @@
         $SecurePassword = Read-Host -Prompt "Enter Networker Password for user $user" -AsSecureString
         $Global:NWCredentials = New-Object System.Management.Automation.PSCredential (“$user”,$Securepassword)
         }
-    $Global:NWbaseurl = "https://$($NWIP):$($NWPort)/nwrestapi/v1"
+    $Global:NWbaseurl = "https://$($NWIP):$($NWPort)/nwrestapi/v3"
     }
     End
     {
