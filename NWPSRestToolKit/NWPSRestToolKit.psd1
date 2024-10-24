@@ -12,7 +12,7 @@
     RootModule        = './NWPSRestToolKit.psm1'
 
     # Version number of this module.
-    ModuleVersion     = '19.0'
+    ModuleVersion     = '19.9.0'
 
     # ID used to uniquely identify this module
     GUID              = '090e9b20-d66e-40f6-aea0-430cd03e25fc'
@@ -21,13 +21,13 @@
     Author            = 'Karsten Bott'
 
     # Company or vendor of this module
-    CompanyName       = 'Dell|EMC'
+    CompanyName       = 'Dell'
 
     # Copyright statement for this module
     Copyright         = 'Apache 2.0'
 
     # Description of the functionality provided by this module
-    Description       = 'Powershell Modules for Dell|EMC Networker REST API'
+    Description       = 'Powershell Modules for Dell Networker REST API'
 
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion = '5.0'
