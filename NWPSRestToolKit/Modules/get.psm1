@@ -344,20 +344,40 @@ function Get-NWServerconfig {
             $scope = "$scope/$tenantid"
         }
     }
+
+
     Process {
-        $Method = "$scope/$Myself"
-        $MethodType = 'GET'
+        $Method = 'GET'
+        $Parameters = @{
+            RequestMethod = "REST"
+            body          = $body 
+            Method        = $Method
+            Uri           = "$scope/$myself"
+            Verbose       = $PSBoundParameters['Verbose'] -eq $true
+        } 
         try {
-        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ) #.$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+        Invoke-NWAPIRequest @Parameters
         }
         catch {
             Get-NWWebException -ExceptionMessage $_
             return
         }
     }
-    End {
 
-    }
+#    Process {
+#        $Method = "$scope/$Myself"
+#        $MethodType = 'GET'
+#        try {
+#        (Invoke-RestMethod -Uri "$NWbaseurl/$Method" -Method $MethodType -Credential $NWCredentials -ContentType $ContentType ) #.$Myself | Select-Object * -ExcludeProperty links #| Select-Object -ExpandProperty attributes #-ExpandProperty attributes #@{N="$($Myself)Name";E={$_.name}},
+#        }
+#        catch {
+#            Get-NWWebException -ExceptionMessage $_
+#            return
+#        }
+ #   }
+ ##   End {
+#
+#    }
 }
 function Get-NWSession {
     [CmdletBinding(DefaultParameterSetName = '1')]

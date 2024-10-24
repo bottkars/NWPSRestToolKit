@@ -104,7 +104,7 @@ function Connect-NWServerV2 {
             $Parameters.Add('SkipCertificateCheck', $True)
         }
         Write-Verbose ($Parameters | Out-String)
-        $Token = Invoke-RestMethod @Parameters -Verbose
+        $Token = Invoke-RestMethod @Parameters
         $Global:NWHeaders = @{
             'Authorization' = "Bearer $($Token.data.token)" 
         }
@@ -219,7 +219,7 @@ function Invoke-NWAPIRequest {
             Method          = $Method
             Headers         = $CallHeaders
             ContentType     = $ContentType
-            #            Credential      = $NWCredentials
+#            Credential      = $NWCredentials
         }
         switch ($PsCmdlet.ParameterSetName) {    
             'infile' {

@@ -81,7 +81,8 @@
         './Modules/vmware',
         './Modules/protectiongroups',
         './Modules/directives',
-        './Modules/workflows.psm1'
+        './Modules/workflows.psm1',
+        './Modules/recoverapps.psm1'
         './errors/errors')
 
     # Functions to export from this module
@@ -139,7 +140,8 @@
         'Update-NWDataDomainSystem',
         'Remove-NWBackups',
         'Set-NWWorkFlows',
-        'Update-NWvProxies'
+        'Update-NWvProxies',
+        'Get-NWRecoverApps'
 )
 
     # Variables to export from this module
