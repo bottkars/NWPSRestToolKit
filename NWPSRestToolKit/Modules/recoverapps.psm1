@@ -53,7 +53,7 @@ function Get-NWRecoverApps {
                     Write-Output $local:Response # | Where-Object hostname -match $hostname 
                 }
                 else {
-                    Write-Output $local:Response
+                    Write-Output $local:Response.Links
                 }                
 
             }
